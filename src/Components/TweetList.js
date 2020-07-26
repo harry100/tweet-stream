@@ -3,8 +3,7 @@ import tweetService from '../services';
 
 const TweetList = () => {
     useEffect(() => {
-        console.log('this is called');
-        tweetService.getTweets()
+        tweetService.getTweets({ hashTag: 'covid' })
             .then(res => {
                 console.log(res);
             })

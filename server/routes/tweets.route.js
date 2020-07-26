@@ -1,9 +1,20 @@
 const express = require('express'),
   router = express.Router();
 
-router.get('/', (req, res, next) => {
-    console.log('here')
-    res.send({ data: 'tweets' })
+const { getTwitterTweets } = require('../services/twitter.service');
+
+router.get('/', async(req, res, next) => {
+    let hashTag = req.query;
+
+    try{
+        const tweetInformation = await getTwitterTweets(hashTag);
+        res.send({
+            data: { tweetInformation },
+            success: true
+        });
+    } catch (err) {
+        console.log(err)
+    }
 })
 
 module.exports = router;
