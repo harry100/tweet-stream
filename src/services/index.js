@@ -14,7 +14,7 @@ class TweetApi {
             let tweets = await axios.get(
                 `${getTweets}?hashTag=${params.hashTag}`, config
             );
-            return tweets;
+            return tweets.data.data.tweetInformation;
         } catch (error) {
             return error;
         }
