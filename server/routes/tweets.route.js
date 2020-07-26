@@ -4,10 +4,10 @@ const express = require('express'),
 const { getTwitterTweets } = require('../services/twitter.service');
 
 router.get('/', async(req, res, next) => {
-    let hashTag = req.query;
+    let { query } = req;
 
     try{
-        const tweetInformation = await getTwitterTweets(hashTag);
+        tweetInformation = await getTwitterTweets(query);
         res.send({
             data: { tweetInformation },
             success: true
