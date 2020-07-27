@@ -7,6 +7,7 @@ import TweetComponent from './Tweet';
 
 const TweetList = () => {
     const [tweets, setTweets] = useState([]);
+    const [loading, setLoading] = useState([]);
     // const [nextTweetUrl, setNextTweetUrl] = useState(null);
 
     // const getTweets = () => {
@@ -27,28 +28,33 @@ const TweetList = () => {
     //         });
     // };
 
-    // polling twitter api
+    // polling twitter api every 10 seconds
     useEffect(() => {
+        setLoading(true);
         tweetService.getTweets(`hashTag=covid`)
             .then(res => {
                 setTweets(res.statuses);
+                setLoading(false);
                 let firstNextUrl = res.search_metadata.next_results;
                 let firstResponse = res.statuses;
                 // let next_url;
                 // if (firstNextUrl !== next_url)
                 const interval = setInterval(() => {
+                    setLoading(true);
                     console.log(firstNextUrl);
                     tweetService.getTweets(firstNextUrl)
                         .then(response => {
+                            setLoading(false);
                             firstNextUrl = response.search_metadata.next_results;
                             firstResponse = [...response.statuses, ...firstResponse];
                             setTweets(firstResponse);
                         });
-                }, 5000);
+                }, 10000);
                 // works like componentWillUnmount
                 return () => clearInterval(interval);
             })
             .catch(err => {
+                setLoading(false);
                 console.log(err);
             });
     }, []);
@@ -58,6 +64,16 @@ const TweetList = () => {
             <div className="page-header heading">
                 <h1> Recent Tweets </h1>
             </div>
+            {
+                loading ?
+                    <div className="loader-cont">
+                        <div className="spinner-border text-info" role="status">
+                            <span className="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                    :
+                    ''
+            }
             {tweets && tweets.length > 0 ?
                 tweets.map(t => {
                     return <TweetComponent key={t.user.id} tweet={t} />;

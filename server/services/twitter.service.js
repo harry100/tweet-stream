@@ -8,7 +8,7 @@ async function getTwitterTweets(params) {
         let queryString = qs.stringify(params)
         fetchEndPoint = `${process.env.TWITTER_API_URL}?${queryString}&tweet_mode=extended`
     } else {
-        fetchEndPoint = `${process.env.TWITTER_API_URL}?q=%23${params.hashTag}&include_entities=true&tweet_mode=extended`
+        fetchEndPoint = `${process.env.TWITTER_API_URL}?q=%23${params.hashTag}&include_entities=true&tweet_mode=extended&count=4`
     }
 
     const response = await fetch(`${fetchEndPoint}`, {
