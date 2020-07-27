@@ -7,7 +7,8 @@ import TweetComponent from './Tweet';
 
 const TweetList = () => {
     const [tweets, setTweets] = useState([]);
-    const [loading, setLoading] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [searchHash, setSearchHash] = useState('covid')
     // const [nextTweetUrl, setNextTweetUrl] = useState(null);
 
     // const getTweets = () => {
@@ -41,7 +42,7 @@ const TweetList = () => {
                 // if (firstNextUrl !== next_url)
                 const interval = setInterval(() => {
                     setLoading(true);
-                    console.log(firstNextUrl);
+                    console.log(searchHash);
                     tweetService.getTweets(firstNextUrl)
                         .then(response => {
                             setLoading(false);
@@ -59,10 +60,26 @@ const TweetList = () => {
             });
     }, []);
 
+    const handleHashChange = (e) => {
+        setSearchHash(e.target.value)
+    }
+
     return (
         <div className="container">
             <div className="page-header heading">
                 <h1> Recent Tweets </h1>
+            </div>
+            <div className="search-cont">
+                <div class="input-group input-group-lg">
+                    <input
+                        type="text" class="form-control"
+                        aria-label="Sizing example input"
+                        aria-describedby="inputGroup-sizing-lg"
+                        placeholder="Search for a #"
+                        value={searchHash}
+                        onChange={handleHashChange}
+                    />
+                </div>
             </div>
             {
                 loading ?
