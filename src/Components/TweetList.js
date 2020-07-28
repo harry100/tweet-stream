@@ -4,65 +4,51 @@ import React, { useState, useEffect } from 'react';
 
 import tweetService from '../services';
 import TweetComponent from './Tweet';
+import { set } from 'lodash';
 
 const TweetList = () => {
     const [tweets, setTweets] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [searchHash, setSearchHash] = useState('covid')
-    // const [nextTweetUrl, setNextTweetUrl] = useState(null);
+    const [searchHash, setSearchHash] = useState('covid');
 
-    // const getTweets = () => {
-    //     tweetService.getTweets({ hashTag: 'covid' })
-    //         .then(res => {
-    //             let currentTweets = [...tweets]
-    //             for (t in currentTweets) {
-    //                 for ( nt in res.statuses) {
-    //                     if (!isEqual(t, nt)) {
-    //                         currentTweets.push(nt)
-    //                     }
-    //                 }
-    //             }
-    //             setTweets(currentTweets)
-    //         })
-    //         .catch(err => {
-    //             console.log(err);
-    //         });
-    // };
-
-    // polling twitter api every 10 seconds
     useEffect(() => {
         setLoading(true);
-        tweetService.getTweets(`hashTag=covid`)
+        tweetService.getTweets(`hashTag=${searchHash}`)
             .then(res => {
                 setTweets(res.statuses);
                 setLoading(false);
-                let firstNextUrl = res.search_metadata.next_results;
-                let firstResponse = res.statuses;
-                // let next_url;
-                // if (firstNextUrl !== next_url)
-                const interval = setInterval(() => {
-                    setLoading(true);
-                    console.log(searchHash);
-                    tweetService.getTweets(firstNextUrl)
-                        .then(response => {
-                            setLoading(false);
-                            firstNextUrl = response.search_metadata.next_results;
-                            firstResponse = [...response.statuses, ...firstResponse];
-                            setTweets(firstResponse);
-                        });
-                }, 10000);
-                // works like componentWillUnmount
-                return () => clearInterval(interval);
+                getTweetsEveryX(res.search_metadata.next_results, res.statuses);
             })
             .catch(err => {
                 setLoading(false);
                 console.log(err);
             });
-    }, []);
+    }, [searchHash]);
+
+    //polling function
+    const getTweetsEveryX = (hash, data) => {
+        setClearHash()
+        let nextUrl = hash;
+        let firstResponse = data;
+        const interval = setInterval(() => {
+            setLoading(true);
+            tweetService.getTweets(nextUrl)
+                .then(response => {
+                    setLoading(false);
+                    nextUrl = response.search_metadata.next_results;
+                    console.log(nextUrl);
+                    firstResponse = [...response.statuses, ...firstResponse];
+                    setTweets(firstResponse);
+                });
+        }, 10000);
+        // works like componentWillUnmount
+        return () => clearInterval(interval);
+    };
 
     const handleHashChange = (e) => {
-        setSearchHash(e.target.value)
-    }
+        setSearchHash(e.target.value);
+        clearInterval();
+    };
 
     return (
         <div className="container">
@@ -70,9 +56,9 @@ const TweetList = () => {
                 <h1> Recent Tweets </h1>
             </div>
             <div className="search-cont">
-                <div class="input-group input-group-lg">
+                <div className="input-group input-group-lg">
                     <input
-                        type="text" class="form-control"
+                        type="text" className="form-control"
                         aria-label="Sizing example input"
                         aria-describedby="inputGroup-sizing-lg"
                         placeholder="Search for a #"
@@ -87,8 +73,7 @@ const TweetList = () => {
                         <div className="spinner-border text-info" role="status">
                             <span className="sr-only">Loading...</span>
                         </div>
-                    </div>
-                    :
+                    </div> :
                     ''
             }
             {tweets && tweets.length > 0 ?

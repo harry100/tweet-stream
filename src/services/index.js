@@ -14,10 +14,8 @@ class TweetApi {
         };
         let tweets;
         try {
-            console.log(p);
             if (p.max_id) {
                 let queryString = qs.stringify(p);
-                console.log(queryString);
                 tweets = await axios.get(
                     `${getTweets}?${queryString}`
                 );
