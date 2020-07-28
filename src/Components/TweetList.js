@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 
 import tweetService from '../services';
 import TweetComponent from './Tweet';
-import { set } from 'lodash';
 
 const TweetList = () => {
     const [tweets, setTweets] = useState([]);
@@ -27,26 +26,28 @@ const TweetList = () => {
 
     //polling function
     const getTweetsEveryX = (hash, data) => {
-        setClearHash()
         let nextUrl = hash;
         let firstResponse = data;
         const interval = setInterval(() => {
+            let ids = [];
             setLoading(true);
             tweetService.getTweets(nextUrl)
                 .then(response => {
                     setLoading(false);
                     nextUrl = response.search_metadata.next_results;
-                    console.log(nextUrl);
+                    firstResponse.map(o => {
+                        ids.push(o.id);
+                    });
+                    firstResponse.filter(f => !ids.includes(f.id));
                     firstResponse = [...response.statuses, ...firstResponse];
                     setTweets(firstResponse);
                 });
-        }, 10000);
+        }, 5000);
         // works like componentWillUnmount
         return () => clearInterval(interval);
     };
 
     const handleHashChange = (e) => {
-        setSearchHash(e.target.value);
         clearInterval();
     };
 
