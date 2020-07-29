@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 // import { isEqual } from 'lodash';
 // import qs from 'query-string';
 
@@ -10,32 +10,34 @@ const TweetList = () => {
     const [tweets, setTweets] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchHash, setSearchHash] = useState('covid');
+    const lastPromise = useRef();
 
     useEffect(() => {
         setLoading(true);
-        console.log('this is called')
         setTweets([]);
-        tweetService.getTweets(`hashTag=${searchHash}`)
-            .then(res => {
-                setTweets(res.statuses);
-                setLoading(false);
-                getTweetsEveryX(res.search_metadata.next_results, res.statuses);
-            })
-            .catch(err => {
-                setLoading(false);
-                console.log(err);
-            });
+        let data = tweetService.getTweets(`hashTag=${searchHash}`)
+        .then(res => {
+            setTweets(res.statuses);
+            setLoading(false);
+            getTweetsEveryX(res.search_metadata.next_results, res.statuses);
+        })
+        .catch(err => {
+            setLoading(false);
+            console.log(err);
+        });
+        lastPromise.current = data;
     }, [searchHash]);
 
     //polling function
-    const getTweetsEveryX = (hash, data) => {
+    const getTweetsEveryX = (hash, data, firstLoad=false) => {
         // let intervals = [];
+        
         let nextUrl = hash;
         let firstResponse = data;
         intervals.push(setInterval(() => {
-            if (intervals.length > 1){
-                for (let i=0; i<=intervals.length-2; i++){
-                    clearInterval(intervals[i])
+            if (intervals.length > 1) {
+                for (let i = 0; i <= intervals.length - 2; i++) {
+                    clearInterval(intervals[i]);
                 }
             }
             let ids = [];
@@ -58,7 +60,7 @@ const TweetList = () => {
         }, 5000));
         // clearInterval(intervals[0])
         // works like componentWillUnmount
-        return () => clearInterval(interval);
+        return () => clearInterval(intervals);
     };
 
     const handleHashChange = (e) => {
