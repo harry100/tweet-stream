@@ -36,10 +36,14 @@ const TweetList = () => {
                     setLoading(false);
                     nextUrl = response.search_metadata.next_results;
                     firstResponse.map(o => {
-                        ids.push(o.id);
+                        ids.push(o.id_str);
                     });
-                    firstResponse.filter(f => !ids.includes(f.id));
-                    firstResponse = [...response.statuses, ...firstResponse];
+                    let filtered = response.statuses.filter(f => {
+                        if (ids.includes(f.id.toString())){
+                            return false
+                        } else return true;
+                    });
+                    firstResponse = [...filtered, ...firstResponse];
                     setTweets(firstResponse);
                 });
         }, 5000);
@@ -48,6 +52,7 @@ const TweetList = () => {
     };
 
     const handleHashChange = (e) => {
+        setSearchHash(e.target.value)
         clearInterval();
     };
 

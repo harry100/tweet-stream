@@ -5,15 +5,20 @@ const { getTwitterTweets } = require('../services/twitter.service');
 
 router.get('/', async(req, res, next) => {
     let { query } = req;
-
-    try{
-        tweetInformation = await getTwitterTweets(query);
+    if (query.hashTag !== 'undefined'){
+        try{
+            tweetInformation = await getTwitterTweets(query);
+            res.send({
+                data: { tweetInformation },
+                success: true
+            });
+        } catch (err) {
+            console.log(err)
+        }
+    } else {
         res.send({
-            data: { tweetInformation },
-            success: true
-        });
-    } catch (err) {
-        console.log(err)
+            data: { statuses: [] }
+        })
     }
 })
 

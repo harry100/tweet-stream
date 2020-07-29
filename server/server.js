@@ -20,7 +20,7 @@ mongoose.Promise = global.Promise;
 // }).catch(err => {
 //     console.log('Could not connect to the database. Exiting now...', err);
     // process.exit();
-// });
+// })
 
 app.use(cors());
 app.options('*', cors());
